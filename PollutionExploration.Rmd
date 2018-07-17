@@ -1,0 +1,82 @@
+---
+title: "PollutionExploration"
+author: "James Budarz"
+date: "July 16, 2018"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+```
+
+# Questions worth asking:
+0. For splitting data into danger vs safe zone: What are high vs. safe levels? Asthma etc. <https://www.epa.gov/criteria-air-pollutants/naaqs-table>
+
+1. Which cities are most polluted? The least? How does city population affect pollution levels?
+
+2. How does the pollution change over the long term?
+
+3. How does the pollution change over the short term?
+
+4. Are there any remarkable events?
+
+5. Plot values on the map
+
+```{r loaddata, include=FALSE, cache=TRUE}
+df = read.csv("data/uspollution/pollution_us_2000_2016.csv", header = TRUE)
+```
+
+##Step 0: For exploratory purposes, just deal with Arizona data:
+
+```{r Data Cleanup, include=FALSE}
+azdata = df %>% filter(State == "Arizona")
+```
+
+##Step 1: Clean the data (remove locations that don't have daily data)
+```{r Data Reduction}
+# Find number of measurements for each location:
+azdata %>% group_by(Site.Num) %>%
+  summarize(first(City), first(Address),NumberOfMeasurements = n())
+
+# Convert measurements to a common unit:
+
+```
+
+##Step 2: Refine the data
+```{r fetchlocation}
+# Fetch location (lat, long) information for every address
+
+# Assign each date a month
+azdata$Date.Local = as.Date(azdata$Date.Local)
+azdata <- azdata %>%
+  mutate(month = factor(
+    months(Date.Local), levels = c('January','February','March','April','May','June',
+                                   'July','August','September','October','November','December')
+    ))
+# Remove strange data before 2001:
+azdata <- azdata %>% filter(year(Date.Local) > 2001)
+
+```
+
+##Step 3: Make some plots of interest:
+```{r Data Plotting}
+gg <- ggplot(azdata)
+
+gg + geom_point(aes(x = CO.Mean, y = NO2.Mean, color = City), size = .05) +
+  ggtitle('NO2 Pollution Levels in Arizona')
+
+gg + geom_point(aes(x = Date.Local, y = NO2.Mean, color = City), size = .05) +
+  ggtitle('NO2 Pollution Levels in Arizona') +
+  geom_smooth(aes(x = Date.Local, y = NO2.Mean, color = City), formula = y ~ sin(x) + x)
+
+gg + geom_col(aes(x = month, y = NO2.Mean, fill = City), position = 'dodge') +
+  ggtitle('NO2 Levels in AZ by Month')
+
+```
+
+
