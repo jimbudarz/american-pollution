@@ -8,23 +8,17 @@ Are our current laws keeping us safe from harmful pollution? (For splitting data
 - Which cities and which areas of the country are most polluted? The least? How does city population affect pollution levels?
 **(Map controlled by slider selecting year)**
 
-- How do different pollutants vary across the country?
-**(Map toggle for each pollutant)**
-
 - How does city a compare to city b?
-**(Box or violin plots for up to 5 selectable cities, plus Two-Sample T Tests to indicate whether cities are significantly different)**
+**(Box oplots of AQI for up to 5 selectable cities, plus Two-Sample T-Tests to indicate whether cities are significantly different)**
 
-- How does the pollution change over the long term?
+- How does the pollution change over the long term? Over the short term?
 **(Time series by selection of city)**
 
-- How does the pollution change over the short term?
-**(Time series by selection of city)**
-
-- If possible: Are there any remarkable events?
-**(Time-series inflection points)**
-
-- How do the different pollutants relate to one another?
+- How do the different pollutants relate to one another? Can the variables be described as independent?
 **(Correlation plot for all 4 different pollutants)**
+
+- Challenge: Are there any remarkable events?
+**(Time-series inflection points)**
 
 ## Notes on project scoring:
 

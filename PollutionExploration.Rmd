@@ -12,38 +12,48 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(ggplot2)
 library(lubridate)
+library(corrplot)
 ```
 
-# Questions worth asking:
-0. For splitting data into danger vs safe zone: What are high vs. safe levels? Asthma etc. <https://www.epa.gov/criteria-air-pollutants/naaqs-table>
-
-1. Which cities are most polluted? The least? How does city population affect pollution levels?
-
-2. How does the pollution change over the long term?
-
-3. How does the pollution change over the short term?
-
-4. Are there any remarkable events?
-
-5. Plot values on the map
-
-```{r loaddata, include=FALSE, cache=TRUE}
-df = read.csv("data/uspollution/pollution_us_2000_2016.csv", header = TRUE)
+```{r loaddata, include=FALSE, cache = TRUE}
+df = read.csv("pollution_us_2000_2016.csv", header = TRUE)
 ```
 
 ##Step 0: For exploratory purposes, just deal with Arizona data:
 
 ```{r Data Cleanup, include=FALSE}
-azdata = df %>% filter(State == "Arizona")
+df = df %>% filter(State == "Arizona")
 ```
 
 ##Step 1: Clean the data (remove locations that don't have daily data)
 ```{r Data Reduction}
 # Find number of measurements for each location:
-azdata %>% group_by(Site.Num) %>%
-  summarize(first(City), first(Address),NumberOfMeasurements = n())
+df %>% group_by(Site.Num) %>%
+  summarize(first(City), first(Address), NumberOfMeasurements = n())
 
 # Convert measurements to a common unit:
+
+# Assign AQI labels to numeric values:
+df$NO2.AQItext = cut(df$NO2.AQI,
+                    breaks = c(0,50,100,150,200,300,500),
+                    labels = c('Good','Moderate',
+                               'Unhealthy for Sensitive Groups',
+                               'Unhealthy','Very Unhealthy','Hazardous'))
+df$CO.AQItext = cut(df$CO.AQI,
+                    breaks = c(0,50,100,150,200,300,500),
+                    labels = c('Good','Moderate',
+                               'Unhealthy for Sensitive Groups',
+                               'Unhealthy','Very Unhealthy','Hazardous'))
+df$SO2.AQItext = cut(df$SO2.AQI,
+                    breaks = c(0,50,100,150,200,300,500),
+                    labels = c('Good','Moderate',
+                               'Unhealthy for Sensitive Groups',
+                               'Unhealthy','Very Unhealthy','Hazardous'))
+df$O3.AQItext = cut(df$O3.AQI,
+                    breaks = c(0,50,100,150,200,300,500),
+                    labels = c('Good','Moderate',
+                               'Unhealthy for Sensitive Groups',
+                               'Unhealthy','Very Unhealthy','Hazardous'))
 
 ```
 
@@ -51,9 +61,11 @@ azdata %>% group_by(Site.Num) %>%
 ```{r fetchlocation}
 # Fetch location (lat, long) information for every address
 
+# Summarize all location data for average measurements per city per day:
+
 # Assign each date a month
-azdata$Date.Local = as.Date(azdata$Date.Local)
-azdata <- azdata %>%
+df$Date.Local = as.Date(df$Date.Local)
+df <- df %>%
   mutate(month = factor(
     months(Date.Local), levels = c('January','February','March','April','May','June',
                                    'July','August','September','October','November','December')
@@ -65,7 +77,7 @@ azdata <- azdata %>% filter(year(Date.Local) > 2001)
 
 ##Step 3: Make some plots of interest:
 ```{r Data Plotting}
-gg <- ggplot(azdata)
+gg <- ggplot(df)
 
 gg + geom_point(aes(x = CO.Mean, y = NO2.Mean, color = City), size = .05) +
   ggtitle('NO2 Pollution Levels in Arizona')
@@ -76,6 +88,12 @@ gg + geom_point(aes(x = Date.Local, y = NO2.Mean, color = City), size = .05) +
 
 gg + geom_col(aes(x = month, y = NO2.Mean, fill = City), position = 'dodge') +
   ggtitle('NO2 Levels in AZ by Month')
+
+gg + geom_boxplot(aes(x = City, y = NO2.Mean))
+
+# Correlation of the different pollutants: CORRELATION DOESN'T CAPTURE SINE WAVES!
+pollutantsonly = df %>% select('CO.AQI','O3.AQI','NO2.AQI','SO2.AQI') %>% filter(complete.cases(.))
+corrplot(cor(pollutantsonly), order = "hclust")
 
 ```
 
