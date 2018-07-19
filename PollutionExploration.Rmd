@@ -16,62 +16,24 @@ library(corrplot)
 ```
 
 ```{r loaddata, include=FALSE, cache = TRUE}
-df = read.csv("pollution_us_2000_2016.csv", header = TRUE)
+df = read.csv("PreppedPollutionData.csv", header = TRUE)
 ```
 
 ##Step 0: For exploratory purposes, just deal with Arizona data:
-
-```{r Data Cleanup, include=FALSE}
+```{r DataReduction}
 df = df %>% filter(State == "Arizona")
 ```
 
-##Step 1: Clean the data (remove locations that don't have daily data)
-```{r Data Reduction}
-# Find number of measurements for each location:
-df %>% group_by(Site.Num) %>%
-  summarize(first(City), first(Address), NumberOfMeasurements = n())
+##Step 1: Clean the data
+```{r DataCleaning}
 
-# Convert measurements to a common unit:
 
-# Assign AQI labels to numeric values:
-df$NO2.AQItext = cut(df$NO2.AQI,
-                    breaks = c(0,50,100,150,200,300,500),
-                    labels = c('Good','Moderate',
-                               'Unhealthy for Sensitive Groups',
-                               'Unhealthy','Very Unhealthy','Hazardous'))
-df$CO.AQItext = cut(df$CO.AQI,
-                    breaks = c(0,50,100,150,200,300,500),
-                    labels = c('Good','Moderate',
-                               'Unhealthy for Sensitive Groups',
-                               'Unhealthy','Very Unhealthy','Hazardous'))
-df$SO2.AQItext = cut(df$SO2.AQI,
-                    breaks = c(0,50,100,150,200,300,500),
-                    labels = c('Good','Moderate',
-                               'Unhealthy for Sensitive Groups',
-                               'Unhealthy','Very Unhealthy','Hazardous'))
-df$O3.AQItext = cut(df$O3.AQI,
-                    breaks = c(0,50,100,150,200,300,500),
-                    labels = c('Good','Moderate',
-                               'Unhealthy for Sensitive Groups',
-                               'Unhealthy','Very Unhealthy','Hazardous'))
 
 ```
 
 ##Step 2: Refine the data
 ```{r fetchlocation}
-# Fetch location (lat, long) information for every address
 
-# Summarize all location data for average measurements per city per day:
-
-# Assign each date a month
-df$Date.Local = as.Date(df$Date.Local)
-df <- df %>%
-  mutate(month = factor(
-    months(Date.Local), levels = c('January','February','March','April','May','June',
-                                   'July','August','September','October','November','December')
-    ))
-# Remove strange data before 2001:
-azdata <- azdata %>% filter(year(Date.Local) > 2001)
 
 ```
 
