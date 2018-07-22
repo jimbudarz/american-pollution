@@ -13,6 +13,7 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 library(corrplot)
+library(RColorBrewer)
 ```
 
 ```{r loaddata, include=FALSE, cache = TRUE}
@@ -21,26 +22,90 @@ df = read.csv("PreppedPollutionData.csv", header = TRUE)
 
 ##Step 0: For exploratory purposes, just deal with Arizona data:
 ```{r DataReduction}
-df = df %>% filter(State == "Arizona")
-```
+cityAQI = df %>%
+  group_by(City_State) %>%
+  summarise(citypop = first(POP),
+            lat = first(lat),
+            long = first(lon),
+            avgNO2aqi = mean(NO2.AQI),
+            avgO3aqi = mean(O3.AQI),
+            avgSO2aqi = mean(SO2.AQI),
+            avgCOaqi = mean(CO.AQI))
 
-##Step 1: Clean the data
-```{r DataCleaning}
-
-
-
-```
-
-##Step 2: Refine the data
-```{r fetchlocation}
-
-
+AnnualCityAQI = df %>%
+  group_by(City_State, measurementyear) %>%
+  summarise(citypop = first(POP),
+            lat = first(lat),
+            long = first(lon),
+            avgNO2aqi = mean(NO2.AQI),
+            avgO3aqi = mean(O3.AQI),
+            avgSO2aqi = mean(SO2.AQI),
+            avgCOaqi = mean(CO.AQI))
 ```
 
 ##Step 3: Make some plots of interest:
 ```{r Data Plotting}
-gg <- ggplot(df)
 
+#Scatter plot of average AQI per city vs. city population
+ggplot(cityAQI, aes(x = citypop, y = avgNO2aqi)) + geom_point() + scale_x_log10() + geom_smooth(method = 'lm') + ggtitle('Effect of population on NO2 Pollution')
+ggplot(cityAQI, aes(x = citypop, y = avgO3aqi)) + geom_point() + scale_x_log10() + geom_smooth(method = 'lm') + ggtitle('Effect of population on O3 Pollution')
+ggplot(cityAQI, aes(x = citypop, y = avgSO2aqi)) + geom_point() + scale_x_log10() + geom_smooth(method = 'lm') + ggtitle('Effect of population on SO2 Pollution')
+ggplot(cityAQI, aes(x = citypop, y = avgCOaqi)) + geom_point() + scale_x_log10() + geom_smooth(method = 'lm') + ggtitle('Effect of population on CO Pollution')
+```
+```{r}
+# Map
+#library(rgdal)
+library(leaflet)
+library(htmltools)
+
+desiredMapMetric  = cityAQI$avgNO2aqi
+desiredyear = 2002
+
+pal <- colorNumeric(
+  palette = "Reds",
+  domain = cityAQI$desiredMapMetric)
+
+pollmap <- leaflet() %>%
+  addProviderTiles('OpenTopoMap', group = "Topo") %>%  # Add topographic tiles
+  addCircleMarkers(lng=cityAQI$long,
+                   lat=cityAQI$lat,
+                   popup=paste(cityAQI$City_State, '<br>',
+                               'Population:', cityAQI$citypop, '<br>',
+                               'Average Annual AQI:', round(desiredMapMetric)),
+                   #pal = pal,
+                   fillColor = 'Red',
+                   opacity = desiredMapMetric/max(desiredMapMetric),
+                   fillOpacity = desiredMapMetric/max(desiredMapMetric),
+                   radius = 20 * sqrt(cityAQI$citypop/max(cityAQI$citypop)),
+                   color = 'Red',
+                   stroke = F
+                   ) %>%
+  addLegend("bottomright", pal = pal,
+            values = desiredMapMetric,
+            title = "AQI")
+     #       opacity = 1)
+  
+pollmap
+
+```
+
+```{r}
+# Google Vis calendar chart:
+library(googleVis)
+df$Date.Local = as.Date(df$Date.Local)
+pollutantofinterest = paste("NO2",'.AQI',sep='')
+plot( 
+  gvisCalendar(df,
+               datevar = "Date.Local",
+               numvar = pollutantofinterest,
+               chartid = "Calendar"
+               )
+)
+
+```
+
+``` {r}
+gg <- ggplot(df)
 gg + geom_point(aes(x = CO.Mean, y = NO2.Mean, color = City), size = .05) +
   ggtitle('NO2 Pollution Levels in Arizona')
 

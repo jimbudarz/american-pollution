@@ -4,6 +4,9 @@ library(tidyr)
 library(htmltools)
 library(ggplot2)
 library(googleVis)
+library(leaflet)
+#library(dygraphs)
+library(plotly)
 
 df = read.csv("PreppedPollutionData.csv", header = TRUE)
 
@@ -42,6 +45,6 @@ AnnualCityAQI = df %>%
 
 #cityAQI$City_State = as.factor(cityAQI$City_State)
 yearsavailable = unique(df$measurementyear)
-statesavailable = c('All', as.character(unique(df$State))) # NEED TO GET RID OF THIS LINE AND LIMIT TO AVAILABLE STATES PER YEAR
+statesavailable = c('ALL', sort(as.character(unique(df$State)))) # NEED TO GET RID OF THIS LINE AND LIMIT TO AVAILABLE STATES PER YEAR
 citiesavailable = unique(df$City_State)
 pollutantsavailable = unique(AnnualCityAQI$PollutantType)

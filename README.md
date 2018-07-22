@@ -15,7 +15,7 @@ Are our current laws keeping us safe from harmful pollution? (For splitting data
 **(Box oplots of AQI for up to 5 selectable cities, plus Two-Sample T-Tests to indicate whether cities are significantly different)**
 
 - How does the pollution change over the long term? Over the short term? Do all cities fluctuate similarly?
-**(Time series by selection of city)**
+**(Time series by selection of city)** **(Calendar chart by selection of city)**
 
 - How do the different pollutants relate to one another? Can the variables be described as independent?
 **(Correlation plot for all 4 different pollutants)**
