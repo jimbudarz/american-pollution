@@ -55,61 +55,83 @@ shinyServer(function(input, output, session) {
       select(City, Date.Local, NO2, O3, SO2, CO, measurementyear, month, City_State, lon, lat)
   })
   
-  #daysAvailableCurrentCity <- reactive({
-  #  #df$Date.Local = as.xts(df$Date.Local)
-  #  df_CurrentCity() %>% n()
-  #})
-  
-  output$NumHighDays_NO2 <- renderValueBox({
+  output$NumModerateDays_NO2 <- renderValueBox({
     daysOverCurrentCity = df_CurrentCity() %>%
       filter(., NO2 >= 51) %>%
       count()
     daysAvailableCurrentCity = df_CurrentCity() %>%
       count()
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
-             "Days of Moderate/High NO2 Level Per Year")
+             "Days of Moderate NO2 Level Per Year", color = "yellow")
   })
   
-  output$NumHighDays_O3 <- renderValueBox({
+  output$NumModerateDays_O3 <- renderValueBox({
     daysOverCurrentCity = df_CurrentCity() %>%
       filter(., O3 >= 51) %>%
       count()
     daysAvailableCurrentCity = df_CurrentCity() %>%
       count()
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
-             "Days of Moderate/High O3 Level Per Year")
+             "Days of Moderate O3 Level Per Year", color = "yellow")
   })
   
-  output$NumHighDays_CO <- renderValueBox({
+  output$NumModerateDays_CO <- renderValueBox({
     daysOverCurrentCity = df_CurrentCity() %>%
       filter(., CO >= 51) %>%
       count()
     daysAvailableCurrentCity = df_CurrentCity() %>%
       count()
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
-             "Days of Moderate/High CO Level Per Year")
+             "Days of Moderate CO Level Per Year", color = "yellow")
   })
-  output$NumHighDays_SO2 <- renderValueBox({
+  output$NumModerateDays_SO2 <- renderValueBox({
     daysOverCurrentCity = df_CurrentCity() %>%
       filter(., SO2 >= 51) %>%
       count()
     daysAvailableCurrentCity = df_CurrentCity() %>%
       count()
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
-             "Days of Moderate/High SO2 Level Per Year")
+             "Days of Moderate SO2 Level Per Year", color = "yellow")
   })
   
-  #output$WorstMonth <- renderValueBox({
-  #  valueBox(
-  #    df_CurrentCity() %>%
-  #      group_by(month) %>%
-  #      summarize(MeanAQI = mean(input$pollutantselected)) %>%
-  #      arrange(desc(MeanAQI)) %>%
-  #      top_n(1) %>%
-  #      select(month),
-  #    'Worst Month'
-  #    )
-  # })
+  output$NumHighDays_NO2 <- renderValueBox({
+    daysOverCurrentCity = df_CurrentCity() %>%
+      filter(., NO2 >= 101) %>%
+      count()
+    daysAvailableCurrentCity = df_CurrentCity() %>%
+      count()
+    valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
+             "Days of High NO2 Level Per Year", color = "orange")
+  })
+  
+  output$NumHighDays_O3 <- renderValueBox({
+    daysOverCurrentCity = df_CurrentCity() %>%
+      filter(., O3 >= 101) %>%
+      count()
+    daysAvailableCurrentCity = df_CurrentCity() %>%
+      count()
+    valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
+             "Days of High O3 Level Per Year", color = "orange")
+  })
+  
+  output$NumHighDays_CO <- renderValueBox({
+    daysOverCurrentCity = df_CurrentCity() %>%
+      filter(., CO >= 101) %>%
+      count()
+    daysAvailableCurrentCity = df_CurrentCity() %>%
+      count()
+    valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
+             "Days of High CO Level Per Year", color = "orange")
+  })
+  output$NumHighDays_SO2 <- renderValueBox({
+    daysOverCurrentCity = df_CurrentCity() %>%
+      filter(., SO2 >= 101) %>%
+      count()
+    daysAvailableCurrentCity = df_CurrentCity() %>%
+      count()
+    valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
+             "Days of High SO2 Level Per Year", color = "orange")
+  })
   
   # Timeseries:
   output$timeplot <- renderPlotly({

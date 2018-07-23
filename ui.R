@@ -59,6 +59,10 @@ shinyUI(fluidPage(
                                 plotOutput('correlationplot')
                               ),
                               box(
+                                valueBoxOutput('NumModerateDays_NO2', width = 3),
+                                valueBoxOutput('NumModerateDays_O3', width = 3),
+                                valueBoxOutput('NumModerateDays_CO', width = 3),
+                                valueBoxOutput('NumModerateDays_SO2', width = 3),
                                 valueBoxOutput('NumHighDays_NO2', width = 3),
                                 valueBoxOutput('NumHighDays_O3', width = 3),
                                 valueBoxOutput('NumHighDays_CO', width = 3),
