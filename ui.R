@@ -56,6 +56,9 @@ shinyUI(fluidPage(
                             ),
                             fluidRow(
                               box(
+                                plotOutput('correlationplot')
+                              ),
+                              box(
                                 valueBoxOutput('NumHighDays_NO2', width = 3),
                                 valueBoxOutput('NumHighDays_O3', width = 3),
                                 valueBoxOutput('NumHighDays_CO', width = 3),

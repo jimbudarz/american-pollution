@@ -19,6 +19,13 @@ shinyServer(function(input, output, session) {
       setProgress(message = "Loading...")
     })})
   
+  output$correlationplot = renderPlot({
+    pollutantsonly = df_CurrentCity() %>%
+      select('CO','O3','NO2','SO2') %>%
+      filter(complete.cases(.))
+    corrplot(cor(pollutantsonly), order = "hclust")
+  })
+  
   possibleStates <- reactive({
     stateList = df %>%
       filter(measurementyear == input$yearselected) %>%
@@ -119,8 +126,8 @@ shinyServer(function(input, output, session) {
       add_markers(x = ~Date.Local, y = ~O3, name = "O3") %>%
       add_markers(x = ~Date.Local, y = ~CO, name = "CO") %>%
       add_markers(x = ~Date.Local, y = ~SO2, name = "SO2") %>%
-      add_lines(x = c(-Inf, Inf), y = c(50, 50)) %>%
-      add_lines(x = c(-Inf, Inf), y = c(100, 100)) %>% 
+      #add_lines(x = c(-Inf, Inf), y = c(50, 50)) %>%
+      #add_lines(x = c(-Inf, Inf), y = c(100, 100)) %>% 
       layout(xaxis = x, yaxis = y)
   })
     #renderGvis({
@@ -146,7 +153,7 @@ shinyServer(function(input, output, session) {
       scale_x_log10() +
       geom_smooth(aes(x = citypop, y = AQI),method = 'lm') +
       geom_point(data = currstateonly, aes(x = citypop, y = AQI), color = 'blue', size = 6) +
-      ggtitle('Effect of City Size on Pollution') + 
+      ggtitle('Effect of City Size on Pollution (Selected State in Blue)') + 
       xlab('City Population') +
       ylab(paste("Air Quality Index for",input$pollutantselected)) +
       theme_minimal()
@@ -166,6 +173,33 @@ shinyServer(function(input, output, session) {
       ggplot(newdf) +
         geom_boxplot(data = newdf,
                      aes_string(x = paste0("reorder(City, ",input$pollutantselected,")"),
+                                y = input$pollutantselected)) +
+        geom_rect(data = HazLevels,
+                  aes(xmin = -Inf, xmax = Inf, ymin = ystart, ymax = yend),
+                  fill = HazLevels$HazColors,
+                  alpha = 0.3) + 
+        labs(x = "City") +
+        theme_minimal() + 
+        coord_cartesian(expand = TRUE, ylim = c(0, max_y)) + 
+        ggtitle("Pollution Levels Across the State")
+    } else {
+      
+      newdf = df %>% filter(measurementyear == input$yearselected)
+      
+      bestcities = newdf[,c("City_State", input$pollutantselected)] %>%
+        group_by(City_State) %>% 
+        summarise(median_ = median(get(input$pollutantselected))) %>%
+        arrange(median_) %>% top_n(-10)
+      
+      print(head(bestcities))
+      
+      max_y = newdf %>% select(input$pollutantselected) %>% max()
+      
+      topten_df = newdf %>%
+        filter(newdf$City_State %in% bestcities$City_State)
+      
+      ggplot(topten_df) +
+        geom_boxplot(aes_string(x = paste0("reorder(City, ",input$pollutantselected,")"),
                                 y = input$pollutantselected)) +
         geom_rect(data = HazLevels,
                   aes(xmin = -Inf, xmax = Inf,
