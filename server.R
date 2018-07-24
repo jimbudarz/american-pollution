@@ -20,10 +20,15 @@ shinyServer(function(input, output, session) {
     })})
   
   output$correlationplot = renderPlot({
+    
     pollutantsonly = df_CurrentCity() %>%
       select('CO','O3','NO2','SO2') %>%
       filter(complete.cases(.))
-    corrplot(cor(pollutantsonly), order = "hclust")
+    
+    corrplot(cor(pollutantsonly),
+             order = "hclust",
+             title = "Correlation of Pollutant Levels",
+             mar=c(0,0,1,0))
   })
   
   possibleStates <- reactive({
@@ -50,85 +55,68 @@ shinyServer(function(input, output, session) {
   })
   
   df_CurrentCity <- reactive({
-    #df$Date.Local = as.xts(df$Date.Local)
     df %>% filter(input$cityselected == City_State) %>%
       select(City, Date.Local, NO2, O3, SO2, CO, measurementyear, month, City_State, lon, lat)
   })
   
   output$NumModerateDays_NO2 <- renderValueBox({
-    daysOverCurrentCity = df_CurrentCity() %>%
-      filter(., NO2 >= 51) %>%
-      count()
-    daysAvailableCurrentCity = df_CurrentCity() %>%
-      count()
+    daysOverCurrentCity = df_CurrentCity() %>% filter(., NO2 >= 51) %>% count()
+    daysAvailableCurrentCity = df_CurrentCity() %>% count()
+    
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
              "Days of Moderate NO2 Level Per Year", color = "yellow")
   })
   
   output$NumModerateDays_O3 <- renderValueBox({
-    daysOverCurrentCity = df_CurrentCity() %>%
-      filter(., O3 >= 51) %>%
-      count()
-    daysAvailableCurrentCity = df_CurrentCity() %>%
-      count()
+    daysOverCurrentCity = df_CurrentCity() %>% filter(., O3 >= 51) %>% count()
+    daysAvailableCurrentCity = df_CurrentCity() %>% count()
+    
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
              "Days of Moderate O3 Level Per Year", color = "yellow")
   })
   
   output$NumModerateDays_CO <- renderValueBox({
-    daysOverCurrentCity = df_CurrentCity() %>%
-      filter(., CO >= 51) %>%
-      count()
-    daysAvailableCurrentCity = df_CurrentCity() %>%
-      count()
+    daysOverCurrentCity = df_CurrentCity() %>% filter(., CO >= 51) %>% count()
+    daysAvailableCurrentCity = df_CurrentCity() %>% count()
+    
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
              "Days of Moderate CO Level Per Year", color = "yellow")
   })
   output$NumModerateDays_SO2 <- renderValueBox({
-    daysOverCurrentCity = df_CurrentCity() %>%
-      filter(., SO2 >= 51) %>%
-      count()
-    daysAvailableCurrentCity = df_CurrentCity() %>%
-      count()
+    daysOverCurrentCity = df_CurrentCity() %>% filter(., SO2 >= 51) %>% count()
+    daysAvailableCurrentCity = df_CurrentCity() %>% count()
+    
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
              "Days of Moderate SO2 Level Per Year", color = "yellow")
   })
   
   output$NumHighDays_NO2 <- renderValueBox({
-    daysOverCurrentCity = df_CurrentCity() %>%
-      filter(., NO2 >= 101) %>%
-      count()
-    daysAvailableCurrentCity = df_CurrentCity() %>%
-      count()
+    daysOverCurrentCity = df_CurrentCity() %>% filter(., NO2 >= 101) %>% count()
+    daysAvailableCurrentCity = df_CurrentCity() %>% count()
+    
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
              "Days of High NO2 Level Per Year", color = "orange")
   })
   
   output$NumHighDays_O3 <- renderValueBox({
-    daysOverCurrentCity = df_CurrentCity() %>%
-      filter(., O3 >= 101) %>%
-      count()
-    daysAvailableCurrentCity = df_CurrentCity() %>%
-      count()
+    daysOverCurrentCity = df_CurrentCity() %>% filter(., O3 >= 101) %>% count()
+    daysAvailableCurrentCity = df_CurrentCity() %>% count()
+    
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
              "Days of High O3 Level Per Year", color = "orange")
   })
   
   output$NumHighDays_CO <- renderValueBox({
-    daysOverCurrentCity = df_CurrentCity() %>%
-      filter(., CO >= 101) %>%
-      count()
-    daysAvailableCurrentCity = df_CurrentCity() %>%
-      count()
+    daysOverCurrentCity = df_CurrentCity() %>% filter(., CO >= 101) %>% count()
+    daysAvailableCurrentCity = df_CurrentCity() %>% count()
+    
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
              "Days of High CO Level Per Year", color = "orange")
   })
   output$NumHighDays_SO2 <- renderValueBox({
-    daysOverCurrentCity = df_CurrentCity() %>%
-      filter(., SO2 >= 101) %>%
-      count()
-    daysAvailableCurrentCity = df_CurrentCity() %>%
-      count()
+    daysOverCurrentCity = df_CurrentCity() %>% filter(., SO2 >= 101) %>% count()
+    daysAvailableCurrentCity = df_CurrentCity() %>% count()
+    
     valueBox(round(365 * daysOverCurrentCity[[1]] / daysAvailableCurrentCity[[1]]),
              "Days of High SO2 Level Per Year", color = "orange")
   })
@@ -150,23 +138,9 @@ shinyServer(function(input, output, session) {
       add_markers(x = ~Date.Local, y = ~SO2, name = "SO2") %>%
       #add_lines(x = c(-Inf, Inf), y = c(50, 50)) %>%
       #add_lines(x = c(-Inf, Inf), y = c(100, 100)) %>% 
-      layout(xaxis = x, yaxis = y)
+      layout(xaxis = x, yaxis = y, title = paste("Air Pollution History for", input$cityselected))
   })
-    #renderGvis({
-    #gvisAreaChart(df_CurrentCity(),
-    #  xvar = "Date.Local",
-    #  yvar = c('NO2','O3','CO','SO2')
-    #)
-  #})
-    
-  # Calendar plot of AQI for a single city:
-  output$calendarchart <- renderGvis({
-    gvisCalendar(df_CurrentCity(),
-                 datevar = "Date.Local",
-                 numvar = input$pollutantselected,
-                 chartid = "Calendar"
-    )
-  })
+
   output$popscatter = renderPlot({
     currstateonly = AQI_byPollutantYear() %>% filter(state == input$stateselected)
     
@@ -175,10 +149,10 @@ shinyServer(function(input, output, session) {
       scale_x_log10() +
       geom_smooth(aes(x = citypop, y = AQI),method = 'lm') +
       geom_point(data = currstateonly, aes(x = citypop, y = AQI), color = 'blue', size = 6) +
-      ggtitle('Effect of City Size on Pollution (Selected State in Blue)') + 
+      ggtitle('Effect of City Size on Pollution', subtitle = '(Selected State in Blue)') + 
       xlab('City Population') +
       ylab(paste("Air Quality Index for",input$pollutantselected)) +
-      theme_minimal()
+      theme_bw(base_size = 18)
   })
   
   # Boxplots comparing different cities in the same state:
@@ -201,9 +175,9 @@ shinyServer(function(input, output, session) {
                   fill = HazLevels$HazColors,
                   alpha = 0.3) + 
         labs(x = "City") +
-        theme_minimal() + 
+        theme_minimal(base_size = 18) + 
         coord_cartesian(expand = TRUE, ylim = c(0, max_y)) + 
-        ggtitle("Pollution Levels Across the State")
+        ggtitle("Pollution Levels By City")
     } else {
       
       newdf = df %>% filter(measurementyear == input$yearselected)
@@ -213,12 +187,12 @@ shinyServer(function(input, output, session) {
         summarise(median_ = median(get(input$pollutantselected))) %>%
         arrange(median_) %>% top_n(-10)
       
-      print(head(bestcities))
-      
-      max_y = newdf %>% select(input$pollutantselected) %>% max()
+      #print(head(bestcities))
       
       topten_df = newdf %>%
         filter(newdf$City_State %in% bestcities$City_State)
+      
+      max_y = topten_df %>% select(input$pollutantselected) %>% max()
       
       ggplot(topten_df) +
         geom_boxplot(aes_string(x = paste0("reorder(City, ",input$pollutantselected,")"),
@@ -229,9 +203,9 @@ shinyServer(function(input, output, session) {
                   fill = HazLevels$HazColors,
                   alpha = 0.3) + 
         labs(x = "City") +
-        theme_minimal() + 
+        theme_minimal(base_size = 18) + 
         coord_cartesian(expand = TRUE, ylim = c(0, max_y)) + 
-        ggtitle("Pollution Levels Across the State")
+        ggtitle("Least Polluted Cities")
     }
   })
   
@@ -246,11 +220,11 @@ shinyServer(function(input, output, session) {
     AQI_byPollutantYear %>%
       leaflet() %>% addProviderTiles('OpenTopoMap', group = "Topo") %>%
       addCircleMarkers(lng = AQI_byPollutantYear$long, lat = AQI_byPollutantYear$lat,
-                       label = paste(AQI_byPollutantYear$City_State, '<br>',
+                       popup = paste(AQI_byPollutantYear$City_State, '<br>',
                                    'Population:', AQI_byPollutantYear$citypop, '<br>',
                                    'Average Annual AQI:', round(AQI_byPollutantYear$AQI)),
-                       fillColor = 'Red',
-                       opacity = AQI_byPollutantYear$AQI/max(AQI_byPollutantYear$AQI),
+                       fillColor = 'Blue',
+                       #opacity = AQI_byPollutantYear$AQI/max(AQI_byPollutantYear$AQI),
                        fillOpacity = AQI_byPollutantYear$AQI/max(AQI_byPollutantYear$AQI),
                        radius = 20 * sqrt(AQI_byPollutantYear$citypop/max(AQI_byPollutantYear$citypop, na.rm = T)),
                        color = 'Red',
