@@ -1,15 +1,22 @@
 ## Load libraries only necessary within ui.R:
 library(shinydashboard)
+source('helper.R')
 
 # Define UI as adaptive page:
-shinyUI(fluidPage(
-  dashboardPage(skin = "black",
+shinyUI(fluidPage(#theme = "bootstrap.min.css",
+  tags$head(tags$style(HTML("
+      p {
+        font-size: large;
+      }
+    "))),
+    dashboardPage(skin = "blue",
                 dashboardHeader(title  = 'American Pollution'),
                 
                 dashboardSidebar(
                   sidebarMenu(
                     ## Define sidebar with all selectable options:
-
+                    
+                    menuItem('Guide', tabName = 'guide', icon = icon('sitemap')),
                     # Sidebar selections for "Pollution Maps" page
                     menuItem("Pollution Maps", tabName = "maps", icon = icon("map")),
                     selectizeInput("yearselected", "Select Year", sort(yearsavailable)),
@@ -24,6 +31,19 @@ shinyUI(fluidPage(
                 ## Create dashboard body with 2 tabs: one for national/statewide averages, one for city timeseries
                 dashboardBody(
                   tabItems(
+                    ## Create page to explain the app:
+                    # Offer the solution
+                    # Validate the solution
+                    tabItem(tabName = 'guide',
+                            fluidRow(
+                              column(width = 6, 
+                                     backgroundbox,
+                                     questionsbox),
+                              column(width = 6,
+                                     whybox,
+                                     datasourcebox)
+                            )
+                    ),
                     tabItem(tabName = "maps",
                             fluidRow(
                               column(width = 6,
@@ -60,6 +80,6 @@ shinyUI(fluidPage(
                     )
                   )
                 )
-  )
+    )
 )
 )

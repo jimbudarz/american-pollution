@@ -230,11 +230,5 @@ shinyServer(function(input, output, session) {
                        color = 'Red',
                        stroke = F) #%>%
       #addLegend("bottomright", pal = pal, values = AQI_byPollutantYear$PollutantType, title = "AQI")
-    #   0 to 50 	Good 	Green
-    # 51 to 100 	Moderate 	Yellow
-    #101 to 150 	Unhealthy for Sensitive Groups 	Orange
-    #151 to 200 	Unhealthy 	Red
-    #201 to 300 	Very Unhealthy 	Purple
-    #301 to 500 	Hazardous 	Maroon
   })
 })
