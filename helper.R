@@ -18,7 +18,9 @@ of air pollution in the United States.'),
     environment and its effect on human health.'),
   p('A note about the measurements reported in this app: The EPA has 
 developed an Air Quality Index (AQI) to help explain air pollution 
-levels to the general public.')
+levels to the general public. In order to accurately compare pollutants 
+    with respect to their effect on human physiology, these values have 
+    been used in place of concentrations.')
 )
 
 datasourcebox = box(width = 12,
